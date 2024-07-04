@@ -13,6 +13,8 @@ module TTFunk
       # @see TTFunk::Table::Cmap::Format06
       # @see TTFunk::Table::Cmap::Format10
       # @see TTFunk::Table::Cmap::Format12
+      # @see TTFunk::Table::Cmap::Format14
+
       class Subtable
         include Reader
 
@@ -35,6 +37,7 @@ module TTFunk
           # Windows support
           unicode: { platform_id: 3, encoding_id: 1 }.freeze,
           unicode_ucs4: { platform_id: 3, encoding_id: 10 }.freeze,
+          variation_unicode: { platform_id: 0, encoding_id: 5 }.freeze,
         }.freeze
 
         # Encode encoding record.
@@ -61,6 +64,8 @@ module TTFunk
             result = Format04.encode(charmap)
           when :unicode_ucs4
             result = Format12.encode(charmap)
+          when :variation_unicode
+            result = Format14.encode(charmap)
           else
             raise NotImplementedError,
               "encoding #{encoding.inspect} is not supported"
@@ -97,6 +102,7 @@ module TTFunk
             when 6 then extend(TTFunk::Table::Cmap::Format06)
             when 10 then extend(TTFunk::Table::Cmap::Format10)
             when 12 then extend(TTFunk::Table::Cmap::Format12)
+            when 14 then extend(TTFunk::Table::Cmap::Format14)
             end
 
             parse_cmap!
@@ -141,3 +147,4 @@ require_relative 'format04'
 require_relative 'format06'
 require_relative 'format10'
 require_relative 'format12'
+require_relative 'format14'

@@ -92,7 +92,15 @@ module TTFunk
       # @param character [Integer] Unicode codepoint
       # @return [Integer, nil]
       def from_unicode(character)
-        @from_unicode_cache[character] ||= (+'' << character).encode!(encoding).ord
+        ch = String.new
+        if character.is_a?(Array)
+          character.each do |c|
+            ch << [c].pack('U*')
+          end
+        else
+          ch << [character].pack('U*')
+        end
+        @from_unicode_cache[character] ||=ch.encode!(encoding).ord
       rescue Encoding::UndefinedConversionError
         nil
       end

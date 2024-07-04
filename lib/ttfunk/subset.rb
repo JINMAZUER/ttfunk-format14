@@ -4,6 +4,7 @@ require_relative 'subset/unicode'
 require_relative 'subset/unicode_8bit'
 require_relative 'subset/mac_roman'
 require_relative 'subset/windows_1252'
+require_relative 'subset/unicode_cluster'
 
 module TTFunk
   # Namespace for different types of subsets.
@@ -21,6 +22,7 @@ module TTFunk
       when :unicode_8bit then Unicode8Bit.new(original)
       when :mac_roman then MacRoman.new(original)
       when :windows_1252 then Windows1252.new(original) # rubocop: disable Naming/VariableNumber
+      when :unicode_cluster then UnicodeCluster.new(original)
       else raise NotImplementedError, "encoding #{encoding} is not supported"
       end
     end

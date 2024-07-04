@@ -95,6 +95,7 @@ module TTFunk
               @code_map[startchar + offset] = startglyph + offset
             end
           end
+          $format12_cmap = @code_map.dup
         end
       end
     end

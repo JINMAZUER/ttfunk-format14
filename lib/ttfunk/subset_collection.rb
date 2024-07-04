@@ -33,14 +33,15 @@ module TTFunk
     #   points
     # @return [void]
     def use(characters)
-      characters.each do |char|
+      characters.each do |cluster|
         covered = false
         i = 0
         length = @subsets.length
+
         while i < length
           subset = @subsets[i]
-          if subset.covers?(char)
-            subset.use(char)
+          if subset.covers?(cluster)
+            subset.use(cluster)
             covered = true
             break
           end
@@ -48,8 +49,8 @@ module TTFunk
         end
 
         unless covered
-          @subsets << Subset.for(@original, :unicode_8bit)
-          @subsets.last.use(char)
+          @subsets << Subset.for(@original, :unicode_cluster)
+          @subsets.last.use(cluster)
         end
       end
     end
@@ -64,37 +65,34 @@ module TTFunk
     #   with that font subset. The strings will be encoded for their subset
     #   font, and so may not look (in the raw) like what was passed in, but they
     #   will render correctly with the corresponding subset font.
-    def encode(characters)
-      return [] if characters.empty?
+    def encode(clusters)
+      return [] if clusters.empty?
 
-      # TODO: probably would be more optimal to nix the #use method,
-      # and merge it into this one, so it can be done in a single
-      # pass instead of two passes.
-      use(characters)
+      use(clusters)
 
       parts = []
       current_subset = 0
-      current_char = 0
-      char = characters[current_char]
+      current_cluster = 0
+      cluster = clusters[current_cluster]
 
       loop do
-        while @subsets[current_subset].includes?(char)
-          char = @subsets[current_subset].from_unicode(char)
+        while @subsets[current_subset].includes?(cluster)
+          cluster = @subsets[current_subset].from_unicode(cluster)
 
           if parts.empty? || parts.last[0] != current_subset
-            encoded_char = char.chr
+            encoded_char = cluster.chr
             if encoded_char.respond_to?(:force_encoding)
               encoded_char.force_encoding('ASCII-8BIT')
             end
             parts << [current_subset, encoded_char]
           else
-            parts.last[1] << char
+            parts.last[1] << cluster
           end
 
-          current_char += 1
-          return parts if current_char >= characters.length
+          current_cluster += 1
+          return parts if current_cluster >= clusters.length
 
-          char = characters[current_char]
+          cluster = clusters[current_cluster]
         end
 
         current_subset = (current_subset + 1) % @subsets.length
